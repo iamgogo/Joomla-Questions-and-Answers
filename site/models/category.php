@@ -6,28 +6,25 @@
       \ \/ / _` / __| __| | |  | |/ _ \ \ / / _ \ |/ _ \| '_ \| '_ ` _ \ / _ \ '_ \| __| | |\/| |/ _ \ __| '_ \ / _ \ / _` |
        \  / (_| \__ \ |_  | |__| |  __/\ V /  __/ | (_) | |_) | | | | | |  __/ | | | |_  | |  | |  __/ |_| | | | (_) | (_| |
         \/ \__,_|___/\__| |_____/ \___| \_/ \___|_|\___/| .__/|_| |_| |_|\___|_| |_|\__| |_|  |_|\___|\__|_| |_|\___/ \__,_|
-                                                        | |                                                                 
-                                                        |_| 				
+                                                        | |
+                                                        |_|
 /-------------------------------------------------------------------------------------------------------------------------------/
 
 	@version		1.0.x
-	@build			5th May, 2018
+	@build			14th August, 2019
 	@created		30th January, 2017
 	@package		Questions and Answers
 	@subpackage		category.php
-	@author			Llewellyn van der Merwe <https://www.vdm.io/>	
+	@author			Llewellyn van der Merwe <https://www.vdm.io/>
 	@copyright		Copyright (C) 2015. All Rights Reserved
-	@license		GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html 
-	
-	Questions &amp; Answers 
-                                                             
+	@license		GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html
+
+	Questions &amp; Answers
+
 /-----------------------------------------------------------------------------------------------------------------------------*/
 
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
-
-// import the Joomla modellist library
-jimport('joomla.application.component.modellist');
 
 /**
  * Questionsanswers Model for Category
@@ -73,6 +70,12 @@ class QuestionsanswersModelCategory extends JModelList
 		// Create a new query object.
 		$query = $db->getQuery(true);
 
+		// Get from #__questionsanswers_question_and_answer as a
+		$query->select($db->quoteName(
+			array('a.id','a.catid'),
+			array('id','catid')));
+		$query->from($db->quoteName('#__questionsanswers_question_and_answer', 'a'));
+
 		// Filtering.
 
 		$catid = $this->input->get('catid', null);
@@ -102,12 +105,6 @@ class QuestionsanswersModelCategory extends JModelList
 				$query->where('a.catid = ' . (int) $catid);
 			}
 		}
-
-		// Get from #__questionsanswers_question_and_answer as a
-		$query->select($db->quoteName(
-			array('a.id','a.catid'),
-			array('id','catid')));
-		$query->from($db->quoteName('#__questionsanswers_question_and_answer', 'a'));
 		// Get where a.published is 1
 		$query->where('a.published = 1');
 
@@ -122,7 +119,7 @@ class QuestionsanswersModelCategory extends JModelList
 	 */
 	public function getItems()
 	{
-		$user = JFactory::getUser();  
+		$user = JFactory::getUser();
 		// load parent items
 		$items = parent::getItems();
 
@@ -137,19 +134,18 @@ class QuestionsanswersModelCategory extends JModelList
 				// Always create a slug for sef URL's
 				$item->slug = (isset($item->alias) && isset($item->id)) ? $item->id.':'.$item->alias : $item->id;
 			}
-		} 
+		}
 
 		// return items
 		return $items;
-	} 
-
+	}
 
 	/**
-	* Get the uikit needed components
-	*
-	* @return mixed  An array of objects on success.
-	*
-	*/
+	 * Get the uikit needed components
+	 *
+	 * @return mixed  An array of objects on success.
+	 *
+	 */
 	public function getUikitComp()
 	{
 		if (isset($this->uikitComp) && QuestionsanswersHelper::checkArray($this->uikitComp))
@@ -157,7 +153,7 @@ class QuestionsanswersModelCategory extends JModelList
 			return $this->uikitComp;
 		}
 		return false;
-	} 
+	}
 
 	public function getButtons()
 	{
@@ -204,5 +200,5 @@ class QuestionsanswersModelCategory extends JModelList
 			return $db->loadColumn();
 		}
 		return false;
-	} 
+	}
 }

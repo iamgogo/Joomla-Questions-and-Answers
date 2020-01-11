@@ -6,21 +6,21 @@
       \ \/ / _` / __| __| | |  | |/ _ \ \ / / _ \ |/ _ \| '_ \| '_ ` _ \ / _ \ '_ \| __| | |\/| |/ _ \ __| '_ \ / _ \ / _` |
        \  / (_| \__ \ |_  | |__| |  __/\ V /  __/ | (_) | |_) | | | | | |  __/ | | | |_  | |  | |  __/ |_| | | | (_) | (_| |
         \/ \__,_|___/\__| |_____/ \___| \_/ \___|_|\___/| .__/|_| |_| |_|\___|_| |_|\__| |_|  |_|\___|\__|_| |_|\___/ \__,_|
-                                                        | |                                                                 
-                                                        |_| 				
+                                                        | |
+                                                        |_|
 /-------------------------------------------------------------------------------------------------------------------------------/
 
 	@version		1.0.x
-	@build			5th May, 2018
+	@build			14th August, 2019
 	@created		30th January, 2017
 	@package		Questions and Answers
 	@subpackage		question_and_answer.php
-	@author			Llewellyn van der Merwe <https://www.vdm.io/>	
+	@author			Llewellyn van der Merwe <https://www.vdm.io/>
 	@copyright		Copyright (C) 2015. All Rights Reserved
-	@license		GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html 
-	
-	Questions &amp; Answers 
-                                                             
+	@license		GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html
+
+	Questions &amp; Answers
+
 /-----------------------------------------------------------------------------------------------------------------------------*/
 
 // No direct access to this file
@@ -28,20 +28,40 @@ defined('_JEXEC') or die('Restricted access');
 
 use Joomla\Registry\Registry;
 
-// import Joomla modelform library
-jimport('joomla.application.component.modeladmin');
-
 /**
  * Questionsanswers Question_and_answer Model
  */
 class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
-{    
+{
+	/**
+	 * The tab layout fields array.
+	 *
+	 * @var      array
+	 */
+	protected $tabLayoutFields = array(
+		'details' => array(
+			'fullwidth' => array(
+				'question',
+				'main_image_uploader',
+				'answer',
+				'answer_documents_uploader'
+			),
+			'under' => array(
+				'main_image',
+				'answer_documents'
+			),
+			'rightside' => array(
+				'catid'
+			)
+		)
+	);
+
 	/**
 	 * @var        string    The prefix to use with controller messages.
 	 * @since   1.6
 	 */
 	protected $text_prefix = 'COM_QUESTIONSANSWERS';
-    
+
 	/**
 	 * The type alias for this content type.
 	 *
@@ -63,6 +83,9 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 	 */
 	public function getTable($type = 'question_and_answer', $prefix = 'QuestionsanswersTable', $config = array())
 	{
+		// add table path for when model gets used from other component
+		$this->addTablePath(JPATH_ADMINISTRATOR . '/components/com_questionsanswers/tables');
+		// get instance of the table
 		return JTable::getInstance($type, $prefix, $config);
 	}
 
@@ -78,7 +101,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 			else
 			{
 				$id = 0;
-			}			
+			}
 			// set the id and view name to session
 			if ($vdm = QuestionsanswersHelper::get('question_and_answer__'.$id))
 			{
@@ -86,9 +109,14 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 			}
 			else
 			{
+				// set the vast development method key
 				$this->vastDevMod = QuestionsanswersHelper::randomkey(50);
 				QuestionsanswersHelper::set($this->vastDevMod, 'question_and_answer__'.$id);
 				QuestionsanswersHelper::set('question_and_answer__'.$id, $this->vastDevMod);
+				// set a return value if found
+				$jinput = JFactory::getApplication()->input;
+				$return = $jinput->get('return', null, 'base64');
+				QuestionsanswersHelper::set($this->vastDevMod . '__return', $return);
 			}
 		}
 		return $this->vastDevMod;
@@ -148,7 +176,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 			else
 			{
 				$id = $item->id;
-			}			
+			}
 			// set the id and view name to session
 			if ($vdm = QuestionsanswersHelper::get('question_and_answer__'.$id))
 			{
@@ -156,9 +184,14 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 			}
 			else
 			{
+				// set the vast development method key
 				$this->vastDevMod = QuestionsanswersHelper::randomkey(50);
 				QuestionsanswersHelper::set($this->vastDevMod, 'question_and_answer__'.$id);
 				QuestionsanswersHelper::set('question_and_answer__'.$id, $this->vastDevMod);
+				// set a return value if found
+				$jinput = JFactory::getApplication()->input;
+				$return = $jinput->get('return', null, 'base64');
+				QuestionsanswersHelper::set($this->vastDevMod . '__return', $return);
 			}
 			// build download links
 			$item->links = array();	
@@ -202,22 +235,25 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 		}
 
 		return $item;
-	} 
+	}
 
 	/**
 	 * Method to get the record form.
 	 *
 	 * @param   array    $data      Data for the form.
 	 * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
+	 * @param   array    $options   Optional array of options for the form creation.
 	 *
 	 * @return  mixed  A JForm object on success, false on failure
 	 *
 	 * @since   1.6
 	 */
-	public function getForm($data = array(), $loadData = true)
+	public function getForm($data = array(), $loadData = true, $options = array('control' => 'jform'))
 	{
+		// set load data option
+		$options['load_data'] = $loadData;
 		// Get the form.
-		$form = $this->loadForm('com_questionsanswers.question_and_answer', 'question_and_answer', array('control' => 'jform', 'load_data' => $loadData));
+		$form = $this->loadForm('com_questionsanswers.question_and_answer', 'question_and_answer', $options);
 
 		if (empty($form))
 		{
@@ -285,6 +321,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 			$form->setFieldAttribute('question', 'disabled', 'true');
 			// Disable fields for display.
 			$form->setFieldAttribute('question', 'readonly', 'true');
+			// If there is no value continue.
 			if (!$form->getValue('question'))
 			{
 				// Disable fields while saving.
@@ -301,6 +338,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 			$form->setFieldAttribute('answer', 'disabled', 'true');
 			// Disable fields for display.
 			$form->setFieldAttribute('answer', 'readonly', 'true');
+			// If there is no value continue.
 			if (!$form->getValue('answer'))
 			{
 				// Disable fields while saving.
@@ -317,6 +355,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 			$form->setFieldAttribute('catid', 'disabled', 'true');
 			// Disable fields for display.
 			$form->setFieldAttribute('catid', 'readonly', 'true');
+			// If there is no value continue.
 			if (!$form->getValue('catid'))
 			{
 				// Disable fields while saving.
@@ -333,6 +372,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 			$form->setFieldAttribute('answer_documents', 'disabled', 'true');
 			// Disable fields for display.
 			$form->setFieldAttribute('answer_documents', 'readonly', 'true');
+			// If there is no value continue.
 			if (!$form->getValue('answer_documents'))
 			{
 				// Disable fields while saving.
@@ -349,6 +389,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 			$form->setFieldAttribute('main_image_uploader', 'disabled', 'true');
 			// Disable fields for display.
 			$form->setFieldAttribute('main_image_uploader', 'readonly', 'true');
+			// If there is no value continue.
 			if (!$form->getValue('main_image_uploader'))
 			{
 				// Disable fields while saving.
@@ -360,17 +401,20 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 		// Only load these values if no id is found
 		if (0 == $id)
 		{
-			// Set redirected field name
-			$redirectedField = $jinput->get('ref', null, 'STRING');
-			// Set redirected field value
-			$redirectedValue = $jinput->get('refid', 0, 'INT');
+			// Set redirected view name
+			$redirectedView = $jinput->get('ref', null, 'STRING');
+			// Set field name (or fall back to view name)
+			$redirectedField = $jinput->get('field', $redirectedView, 'STRING');
+			// Set redirected view id
+			$redirectedId = $jinput->get('refid', 0, 'INT');
+			// Set field id (or fall back to redirected view id)
+			$redirectedValue = $jinput->get('field_id', $redirectedId, 'INT');
 			if (0 != $redirectedValue && $redirectedField)
 			{
 				// Now set the local-redirected field default value
 				$form->setValue($redirectedField, null, $redirectedValue);
 			}
 		}
-
 		return $form;
 	}
 
@@ -421,7 +465,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 	protected function canEditState($record)
 	{
 		$user = JFactory::getUser();
-		$recordId	= (!empty($record->id)) ? $record->id : 0;
+		$recordId = (!empty($record->id)) ? $record->id : 0;
 
 		if ($recordId)
 		{
@@ -529,7 +573,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 		}
 
 		return $data;
-	} 
+	}
 
 	/**
 	 * Method to get the unique fields of this table.
@@ -687,7 +731,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 	 *
 	 * @return  mixed  An array of new IDs on success, boolean false on failure.
 	 *
-	 * @since	12.2
+	 * @since 12.2
 	 */
 	protected function batchCopy($values, $pks, $contexts)
 	{
@@ -794,7 +838,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 			$this->table->id = 0;
 
 			// TODO: Deal with ordering?
-			// $this->table->ordering	= 1;
+			// $this->table->ordering = 1;
 
 			// Check the row.
 			if (!$this->table->check())
@@ -828,7 +872,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 		$this->cleanCache();
 
 		return $newIds;
-	} 
+	}
 
 	/**
 	 * Batch move items to a new category
@@ -839,7 +883,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 	 *
 	 * @return  boolean  True if successful, false otherwise and internal error is set.
 	 *
-	 * @since	12.2
+	 * @since 12.2
 	 */
 	protected function batchMove($values, $pks, $contexts)
 	{
@@ -976,7 +1020,7 @@ class QuestionsanswersModelQuestion_and_answer extends JModelAdmin
 			$metadata = new JRegistry;
 			$metadata->loadArray($data['metadata']);
 			$data['metadata'] = (string) $metadata;
-		} 
+		}
 
 		// Get the basic encryption key.
 		$basickey = QuestionsanswersHelper::getCryptKey('basic');

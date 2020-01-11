@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `#__questionsanswers_question_and_answer` (
 	`catid` INT(11) NOT NULL DEFAULT 0,
 	`main_image` TEXT NOT NULL,
 	`question` TEXT NOT NULL,
-	`params` text NOT NULL DEFAULT '',
+	`params` text NOT NULL,
 	`published` TINYINT(3) NOT NULL DEFAULT 1,
 	`created_by` INT(10) unsigned NOT NULL DEFAULT 0,
 	`modified_by` INT(10) unsigned NOT NULL DEFAULT 0,
@@ -18,9 +18,9 @@ CREATE TABLE IF NOT EXISTS `#__questionsanswers_question_and_answer` (
 	`hits` INT(10) unsigned NOT NULL DEFAULT 0,
 	`access` INT(10) unsigned NOT NULL DEFAULT 0,
 	`ordering` INT(11) NOT NULL DEFAULT 0,
-	`metakey` TEXT NOT NULL DEFAULT '',
-	`metadesc` TEXT NOT NULL DEFAULT '',
-	`metadata` TEXT NOT NULL DEFAULT '',
+	`metakey` TEXT NOT NULL,
+	`metadesc` TEXT NOT NULL,
+	`metadata` TEXT NOT NULL,
 	PRIMARY KEY  (`id`),
 	KEY `idx_access` (`access`),
 	KEY `idx_checkout` (`checked_out`),
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `#__questionsanswers_question_and_answer` (
 	KEY `idx_modifiedby` (`modified_by`),
 	KEY `idx_state` (`published`),
 	KEY `idx_catid` (`catid`)
-) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__questionsanswers_help_document` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `#__questionsanswers_help_document` (
 	`title` CHAR(64) NOT NULL DEFAULT '',
 	`type` TINYINT(1) NOT NULL DEFAULT 0,
 	`url` VARCHAR(255) NOT NULL DEFAULT '',
-	`params` text NOT NULL DEFAULT '',
+	`params` text NOT NULL,
 	`published` TINYINT(3) NOT NULL DEFAULT 1,
 	`created_by` INT(10) unsigned NOT NULL DEFAULT 0,
 	`modified_by` INT(10) unsigned NOT NULL DEFAULT 0,
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `#__questionsanswers_help_document` (
 	KEY `idx_article` (`article`),
 	KEY `idx_target` (`target`),
 	KEY `idx_alias` (`alias`)
-) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
 
 

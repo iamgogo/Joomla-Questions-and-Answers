@@ -6,21 +6,21 @@
       \ \/ / _` / __| __| | |  | |/ _ \ \ / / _ \ |/ _ \| '_ \| '_ ` _ \ / _ \ '_ \| __| | |\/| |/ _ \ __| '_ \ / _ \ / _` |
        \  / (_| \__ \ |_  | |__| |  __/\ V /  __/ | (_) | |_) | | | | | |  __/ | | | |_  | |  | |  __/ |_| | | | (_) | (_| |
         \/ \__,_|___/\__| |_____/ \___| \_/ \___|_|\___/| .__/|_| |_| |_|\___|_| |_|\__| |_|  |_|\___|\__|_| |_|\___/ \__,_|
-                                                        | |                                                                 
-                                                        |_| 				
+                                                        | |
+                                                        |_|
 /-------------------------------------------------------------------------------------------------------------------------------/
 
 	@version		1.0.x
-	@build			5th May, 2018
+	@build			14th August, 2019
 	@created		30th January, 2017
 	@package		Questions and Answers
 	@subpackage		ajax.php
-	@author			Llewellyn van der Merwe <https://www.vdm.io/>	
+	@author			Llewellyn van der Merwe <https://www.vdm.io/>
 	@copyright		Copyright (C) 2015. All Rights Reserved
-	@license		GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html 
-	
-	Questions &amp; Answers 
-                                                             
+	@license		GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html
+
+	Questions &amp; Answers
+
 /-----------------------------------------------------------------------------------------------------------------------------*/
 
 // No direct access to this file
@@ -56,6 +56,7 @@ class QuestionsanswersModelAjax extends JModelList
 			$vdm = $jinput->get('vdm', null, 'WORD');
 			if ($vdm) 
 			{
+				// set view and id
 				if ($view = QuestionsanswersHelper::get($vdm))
 				{
 					$current = (array) explode('__', $view);
@@ -66,6 +67,14 @@ class QuestionsanswersModelAjax extends JModelList
 							'a_id' => (int) $current[1],
 							'a_view' => $current[0]
 						);
+					}
+				}
+				// set return if found
+				if ($return = QuestionsanswersHelper::get($vdm . '__return'))
+				{
+					if (QuestionsanswersHelper::checkString($return))
+					{
+						$this->viewid[$call]['a_return'] = $return;
 					}
 				}
 			}
@@ -190,7 +199,7 @@ class QuestionsanswersModelAjax extends JModelList
 			{
 				QuestionsanswersHelper::resizeImage($this->fileName, $this->fileFormat, $this->target, $this->folderPath, $this->fullPath);
 			}
-			// Get the basic encription.
+			// Get the basic encryption.
 			$basickey = QuestionsanswersHelper::getCryptKey('basic');
 			$basic = null;
 			// set link options
@@ -423,8 +432,8 @@ class QuestionsanswersModelAjax extends JModelList
 	protected function _getPackageFromUpload()
 	{		
 		// Get the uploaded file information
-		$app	= JFactory::getApplication();
-		$input	= $app->input;
+		$app = JFactory::getApplication();
+		$input = $app->input;
 
 		// See JInputFiles::get.
 		$userfiles = $input->files->get('files', null, 'array');
@@ -458,9 +467,9 @@ class QuestionsanswersModelAjax extends JModelList
 		}
 
 		// Build the appropriate paths
-		$config		= JFactory::getConfig();
-		$tmp_dest	= $config->get('tmp_path') . '/' . $userfile['name'];
-		$tmp_src	= $userfile['tmp_name'];
+		$config = JFactory::getConfig();
+		$tmp_dest = $config->get('tmp_path') . '/' . $userfile['name'];
+		$tmp_src = $userfile['tmp_name'];
 
 		// Move uploaded file
 		jimport('joomla.filesystem.file');
@@ -530,12 +539,12 @@ class QuestionsanswersModelAjax extends JModelList
 			}
 		}
 		
-		$config			= JFactory::getConfig();
+		$config = JFactory::getConfig();
 		// set Package Name
-		$check['packagename']	= $archivename;
+		$check['packagename'] = $archivename;
 		
 		// set directory
-		$check['dir']		= $config->get('tmp_path'). '/' .$archivename;
+		$check['dir'] = $config->get('tmp_path'). '/' .$archivename;
 		
 		return $check;
 	}
@@ -552,8 +561,8 @@ class QuestionsanswersModelAjax extends JModelList
 	{
 		jimport('joomla.filesystem.file');
 		
-		$config		= JFactory::getConfig();
-		$package	= $config->get('tmp_path'). '/' .$package;
+		$config = JFactory::getConfig();
+		$package = $config->get('tmp_path'). '/' .$package;
 
 		// Is the package file a valid file?
 		if (is_file($package))
